@@ -48,8 +48,7 @@ instance Semigroup (Plur a) where
   Zero    <> r2      = r2
   One x   <> One y   = Two x y
   One x   <> Two y _ = Two x y
-  Two x _ <> One y   = Two x y
-  Two x _ <> Two y _ = Two x y
+  Two x y <> _       = Two x y
 
 instance Monoid (Plur a) where
   mempty = Zero
