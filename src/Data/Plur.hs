@@ -1,8 +1,10 @@
-{-# language LambdaCase #-}
 module Data.Plur (Plur(..), count) where
 
+import Control.Applicative
+import Data.Foldable
 import Data.Monoid
-import Data.Semigroup
+import Data.Semigroup as Semigroup
+import Data.Traversable
 
 -- Plurality monad: Zero, one, or at least two.
 data Plur a
@@ -12,7 +14,7 @@ data Plur a
   deriving (Show, Eq, Ord)
 
 instance Functor Plur where
-  fmap f = \case
+  fmap f plur = case plur of
     Zero      -> Zero
     One a     -> One (f a)
     Two a1 a2 -> Two (f a1) (f a2)
@@ -23,22 +25,23 @@ instance Applicative Plur where
   (<*>) Zero _        = Zero
   (<*>) _ Zero        = Zero
   (<*>) (One f) x     = fmap f x
-  (<*>) (Two f1 f2) x = fmap f1 x <> fmap f2 x
+  (<*>) (Two f1 f2) x = fmap f1 x `mappend` fmap f2 x
 
 instance Monad Plur where
+  return = pure
   (>>=) x f = case x of
     Zero      -> Zero
     One x1    -> f x1
-    Two x1 x2 -> f x1 <> f x2
+    Two x1 x2 -> f x1 `mappend` f x2
 
 instance Foldable Plur where
-  foldMap f = \case
+  foldMap f plur = case plur of
     Zero      -> mempty
     One a     -> f a
-    Two a1 a2 -> f a1 <> f a2
+    Two a1 a2 -> f a1 `mappend` f a2
 
 instance Traversable Plur where
-  traverse f = \case
+  traverse f plur = case plur of
     Zero      -> pure Zero
     One a     -> One <$> f a
     Two a1 a2 -> Two <$> f a1 <*> f a2
@@ -51,10 +54,11 @@ instance Semigroup (Plur a) where
   Two x y <> _       = Two x y
 
 instance Monoid (Plur a) where
-  mempty = Zero
+  mempty  = Zero
+  mappend = (Semigroup.<>)
 
 count :: Plur a -> Int
-count = \case
+count plur = case plur of
   Zero    -> 0
   One _   -> 1
   Two _ _ -> 2
