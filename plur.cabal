@@ -1,5 +1,5 @@
 name:                plur
-version:             0.1.0.0
+version:             0.2.0.0
 synopsis:            Plurality monad: Zero, one, or at least two.
 description:
   Often when counting you don't need an exact count, but only whether there are
@@ -21,7 +21,7 @@ category:            Data
 build-type:          Simple
 extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
-tested-with: GHC == 8.6.3
+tested-with:         GHC == 8.6.3
 
 library
   exposed-modules:     Data.Plur
@@ -32,9 +32,9 @@ library
   default-language:    Haskell2010
 
 test-suite Properties
-  type: exitcode-stdio-1.0
-  hs-source-dirs: test
-  main-is: Properties.hs
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   test
+  main-is:          Properties.hs
   build-depends:
     base,
     plur,
