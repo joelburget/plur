@@ -16,7 +16,7 @@ license:             BSD3
 license-file:        LICENSE
 author:              Joel Burget
 maintainer:          joelburget@gmail.com
-copyright:           (c) 2018 Joel Burget
+copyright:           (c) 2018-2019 Joel Burget
 category:            Data
 build-type:          Simple
 extra-source-files:  ChangeLog.md
@@ -29,12 +29,13 @@ tested-with:
   , GHC == 7.10.3
   , GHC == 8.0.2
   , GHC == 8.2.2
-  , GHC == 8.4.2
+  , GHC == 8.4.3
+  , GHC == 8.6.3
 
 library
   exposed-modules:     Data.Plur
   build-depends:
-    base >=4.3 && <4.12,
+    base >=4.3 && <4.14,
     semigroups >= 0.18
   hs-source-dirs:      src
   default-language:    Haskell2010
@@ -46,6 +47,6 @@ test-suite Properties
   build-depends:
     base,
     plur,
-    checkers,
-    QuickCheck
+    hedgehog,
+    hedgehog-classes >= 0.1.1
   default-language: Haskell2010

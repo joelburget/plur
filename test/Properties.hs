@@ -2,28 +2,30 @@ module Main (main) where
 
 import Control.Applicative
 import Data.Plur
+import System.Exit
+import qualified Hedgehog.Gen as Gen
+import qualified Hedgehog.Range as Range
 
-import Test.QuickCheck
-import Test.QuickCheck.Checkers
-import Test.QuickCheck.Classes
+import Hedgehog
+import Hedgehog.Classes
 
-instance Arbitrary a => Arbitrary (Plur a) where
-  arbitrary = oneof
-    [ pure Zero
-    , One <$> arbitrary
-    , Two <$> arbitrary <*> arbitrary
-    ]
-  shrink (Two a b) = [One a, One b]
-  shrink _         = []
-
-instance Eq a => EqProp (Plur a) where
-  (=-=) = eq
+genPlur :: Gen x -> Gen (Plur x)
+genPlur gen = Gen.choice
+  [ pure Zero
+  , One <$> gen
+  , Two <$> gen <*> gen
+  ]
 
 main :: IO ()
 main = do
-  quickBatch (functor     (One ('x', 'y', 'z')))
-  quickBatch (applicative (One ('x', 'y', 'z')))
-  quickBatch (monad       (One ('x', 'y', 'z')))
-  quickBatch (traversable (One ('x', 'y', "z")))
-  quickBatch (semigroup   (One ('x', 'y', 'z')))
-  quickBatch (monoid      (One 'x'))
+  result <- lawsCheckMany
+    [ ("Plur",
+      [ functorLaws genPlur
+      , applicativeLaws genPlur
+      , monadLaws genPlur
+      , traversableLaws genPlur
+      , semigroupLaws $ genPlur Gen.unicode
+      , monoidLaws $ genPlur Gen.unicode
+      ])
+    ]
+  exitWith $ if result then ExitSuccess else ExitFailure 1
